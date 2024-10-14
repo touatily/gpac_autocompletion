@@ -16,14 +16,14 @@ help_options = ["doc", "alias", "log", "core", "cfg", "net", "prompt", "modules"
 
 # get all possible options for a filter
 def get_list_options(filter: str):
-    list_options = subprocess.check_output(["gpac", "-h", filter+".*", "-logs=ncl", "2>/dev/null"]).decode().strip("\n ").split("\n")
+    list_options = subprocess.check_output(["gpac", "-h", filter+".*", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
     list_options = [e.split(" ")[0] for e in list_options if e!="" and e[0] not in {' ', '-'} and e[0]!= "\t"]
     return list_options
 
 # get type and possible values for an option of a filter
 def get_type_option_filter(filter: str, option: str) -> str:
     import re
-    help_option = subprocess.check_output(["gpac", "-h", filter+"."+option, "-logs=ncl", "2>/dev/null"]).decode().strip("\n ").split("\n")
+    help_option = subprocess.check_output(["gpac", "-h", filter+"."+option, "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
     pattern = re.compile(pattern = fr"^{option}\s*\(([^,\)]+)[,\)]")
     type = ""; values = []
     if pattern.match(help_option[0]):
@@ -36,7 +36,7 @@ def get_type_option_filter(filter: str, option: str) -> str:
 def get_list_filters():
     global list_filters
     if list_filters == []:
-        temp = subprocess.check_output(["gpac", "-h", "filters", "-logs=ncl", "2>/dev/null"]).decode().strip("\n ").split("\n")[1:]
+        temp = subprocess.check_output(["gpac", "-h", "filters", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")[1:]
         list_filters = [e.split(":")[0] for e in temp]
     return list_filters
 
@@ -44,7 +44,7 @@ def get_list_filters():
 def get_list_modules():
     global list_modules
     if list_modules == []:
-        temp = subprocess.check_output(["gpac", "-logs=ncl", "-h", "modules"]).decode().strip("\n ").split("\n")[1:]
+        temp = subprocess.check_output(["gpac", "-logs=ncl", "-h", "modules"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")[1:]
         list_modules = [e.split(":")[0] for e in temp]
     return list_modules
 
@@ -53,7 +53,7 @@ def get_list_protocols():
     import re
     global protocols
     if protocols["in"] == [] and protocols["out"] == []:
-        temp = subprocess.check_output(["gpac", "-ha", "protocols", "-logs=ncl", "2>/dev/null"]).decode().strip("\n").split("\n")[1:]
+        temp = subprocess.check_output(["gpac", "-ha", "protocols", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n").split("\n")[1:]
         pattern = re.compile(r'(?P<protocol>\w+):(?:\s*in\s*\((?P<in_filters>[^\)]*)\))?(?:\s*out\s*\((?P<out_filters>[^\)]*)\))?')
         for line in temp:
             match = pattern.match(line)

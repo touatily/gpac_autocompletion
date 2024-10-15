@@ -2,73 +2,48 @@
 
 import sys
 from shlex import split as shplit
-import subprocess
+from pathlib import Path
+import cache_manager as cm
 
 exit_code = 0
 quote_added = False
 list_help = ["-h", "-help", "-ha", "-hx", "-hh"]
 list_filters = []
 list_modules = []
-protocols = {"in": [], "out": [], "filters": {}}
+protocols = {}
 help_options = ["doc", "alias", "log", "core", "cfg", "net", "prompt", "modules", "module", "creds", "filters", 
                 "codecs", "formats", "protocols", "props", "colors", "layouts", "links", "defer"]
 
+cache_path = str(Path.home()) + "/.cache/gpac/gpac_autocomplete.json"
+cache = cm.cache(cache_path)
 
 # get all possible options for a filter
 def get_list_options(filter: str):
-    list_options = subprocess.check_output(["gpac", "-h", filter+".*", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
-    list_options = [e.split(" ")[0] for e in list_options if e!="" and e[0] not in {' ', '-'} and e[0]!= "\t"]
-    return list_options
+    return cache.get_cache_list_options(filter)
 
 # get type and possible values for an option of a filter
 def get_type_option_filter(filter: str, option: str) -> str:
-    import re
-    help_option = subprocess.check_output(["gpac", "-h", filter+"."+option, "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
-    pattern = re.compile(pattern = fr"^{option}\s*\(([^,\)]+)[,\)]")
-    type = ""; values = []
-    if pattern.match(help_option[0]):
-        type = pattern.match(help_option[0]).group(1)
-    if type == "enum":
-        values = [e.strip('\t* ').split(':')[0] for e in help_option[1:] if e!='']
-    return (type, values)
+    return cache.get_cache_type_option_filter(filter, option)
 
 # lazy loading of filters
 def get_list_filters():
     global list_filters
     if list_filters == []:
-        temp = subprocess.check_output(["gpac", "-h", "filters", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")[1:]
-        list_filters = [e.split(":")[0] for e in temp]
+        list_filters = cache.get_cache_list_filters()
     return list_filters
 
 # lazy loading of modules
 def get_list_modules():
     global list_modules
     if list_modules == []:
-        temp = subprocess.check_output(["gpac", "-logs=ncl", "-h", "modules"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")[1:]
-        list_modules = [e.split(":")[0] for e in temp]
+        list_modules = cache.get_cache_list_modules()
     return list_modules
 
 # lazy loading of protocols
-def get_list_protocols():
-    import re
+def get_list_protocols()-> None:
     global protocols
-    if protocols["in"] == [] and protocols["out"] == []:
-        temp = subprocess.check_output(["gpac", "-ha", "protocols", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n").split("\n")[1:]
-        pattern = re.compile(r'(?P<protocol>\w+):(?:\s*in\s*\((?P<in_filters>[^\)]*)\))?(?:\s*out\s*\((?P<out_filters>[^\)]*)\))?')
-        for line in temp:
-            match = pattern.match(line)
-            if match:
-                protocol = match.group('protocol')
-                in_filters = match.group('in_filters')
-                out_filters = match.group('out_filters')
-                if in_filters:
-                    protocols["in"].append(protocol)
-                    in_filters = in_filters.split(' ')
-                    protocols["filters"][protocol] = in_filters
-                if out_filters:
-                    protocols["out"].append(protocol)
-                    out_filters = out_filters.split(' ')
-                    protocols["filters"][protocol] = out_filters
+    if protocols == {}:
+        protocols = cache.get_cache_list_protocols()
 
 
 def analyze_filter(filter, current_word, help=False):
@@ -196,32 +171,27 @@ def generate_completions(command_line, cursor_position):
     else:
         if (previous_word in {'-i', '-src', '-dst', '-o'}) or current_word.startswith('src=') or current_word.startswith('dst='):
             get_list_protocols()
+            input_protocols = [p for p in protocols if protocols[p]["input"] != []]
+            output_protocols = [p for p in protocols if protocols[p]["output"] != []]
             
             list_cur = current_word.split(":")
             curr_option = list_cur[-1]
             protocol = list_cur[0]
 
-            # get all possible options for the protocol
-            if protocol in protocols["filters"]:
-                possible_filters = protocols["filters"][protocol]
-                list_options = {}
-                for filter in possible_filters:
-                    list_options[filter] = subprocess.check_output(["gpac", "-h", filter+".*", "-logs=ncl", "2>/dev/null"]).decode().strip("\n ").split("\n")
-                    list_options[filter] = [e.split(" ")[0] for e in list_options[filter] if e!="" and e[0]!=' ' and e[0]!= "\t"]
 
             if previous_word == "-i" or previous_word == "-src":
                 exit_code = 1
-                possibilities = [e+"://" for e in protocols["in"]]
+                possibilities = [e+"://" for e in input_protocols]
                 completions = [e for e in possibilities if e.startswith(current_word)]
             elif previous_word == "-o" or previous_word == "-dst":
-                possibilities = [e+"://" for e in protocols["out"]]
+                possibilities = [e+"://" for e in output_protocols]
                 completions = [e for e in possibilities if e.startswith(current_word)]
             elif current_word.startswith("src="):
                 exit_code = 1
-                possibilities = [e+"://" for e in protocols["in"]]
+                possibilities = [e+"://" for e in input_protocols]
                 completions = [e for e in possibilities if e.startswith(current_word[4:])]
             elif current_word.startswith("dst="):
-                possibilities = [e+"://" for e in protocols["out"]]
+                possibilities = [e+"://" for e in output_protocols]
                 completions = [e for e in possibilities if e.startswith(current_word[4:])]
 
 

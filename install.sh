@@ -19,6 +19,7 @@ fi
 
 # Copy the autocompletion script
 cp bash_gpac_autocomplete.sh "$INSTALL_DIR"
+cp autocomplete/cache_manager.py "$INSTALL_DIR"
 cp autocomplete/gpac_autocomplete.py "$INSTALL_DIR"
 
 echo "Autocompletion script installed in $INSTALL_DIR"

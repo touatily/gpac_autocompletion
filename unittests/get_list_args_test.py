@@ -5,10 +5,10 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 import autocomplete.gpac_autocomplete as ga
 
-class get_list_options_test(unittest.TestCase):
+class get_list_args_test(unittest.TestCase):
 
 
-    def test_get_list_options(self):
+    def test_get_list_args(self):
         list_tests = [
             ("j2kdec", []),
             ("aout", ["drv", "bnum", "bdur", "threaded", "dur", "clock", "speed", "start", "vol", "pan", "buffer", "mbuffer", "rbuffer", "adelay", "buffer_done", "rebuffer", "media_offset"]),
@@ -19,9 +19,7 @@ class get_list_options_test(unittest.TestCase):
             ("routein", ['src', 'ifce', 'gcache', 'tunein', 'buffer', 'timeout', 'nbcached', 'kc', 'skipr', 'stsi', 'stats', 'tsidbg', 'max_segs', 'odir', 'reorder', 'cloop', 'rtimeout', 'fullseg', 'repair', 'repair_urls', 'max_sess', 'llmode', 'dynsel']),
             ("cryptout", ['dst', 'fullfile']),
         ]
-        
-        list_tests_vector = [(test[0], [ord(char) for char in option] if option else []) for test in list_tests for option in test[1]]
 
         for test in list_tests:
-            res = ga.get_list_options(test[0])
+            res = ga.get_list_args(test[0])
             self.assertEqual(res, test[1], "Test failed: _" + test[0] + "_")

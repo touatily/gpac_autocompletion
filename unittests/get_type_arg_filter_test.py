@@ -6,8 +6,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 import autocomplete.gpac_autocomplete as ga
 
 
-class get_type_option_filter_test(unittest.TestCase):
-    def test_get_type_option_filter(self):
+class get_type_arg_filter_test(unittest.TestCase):
+    def test_get_type_arg_filter(self):
         list_tests = [
             ("inspect", "deep", ("bool", [])),
             ("inspect", "fmt", ("str", [])),
@@ -21,6 +21,6 @@ class get_type_option_filter_test(unittest.TestCase):
         ]
 
         for test in list_tests:
-            res = ga.get_type_option_filter(test[0], test[1])
+            res = ga.get_type_arg_filter(test[0], test[1])
             self.assertEqual(res, test[2], "Test failed: _" + test[0] + "." + test[1] + "_")
     

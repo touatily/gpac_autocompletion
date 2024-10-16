@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../a
 import autocomplete.gpac_autocomplete as ga
 
 list_tests = [
-    ###### tests about help options
+    ###### tests about help args
     # Test 1:
     ("gpac -h inspect.d", ['inspect.deep ', 'inspect.dump_data ', 'inspect.dur ', 'inspect.dtype ']),
     # Test 2:

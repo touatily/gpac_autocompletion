@@ -9,20 +9,20 @@ content = {
     "version": "version_of_gpac_associated_with_cache_content",
     "cache": {
         "filters": [list of all filters],
-        "options": {
-            "filter1": [list of all options for filter1],
-            "filter2": [list of all options for filter2],
+        "args": {
+            "filter1": [list of all args for filter1],
+            "filter2": [list of all args for filter2],
             ...
         },
         "modules": [list of all modules],
-        "type_option_filter": {
-            "filter1.option1": {
-                "type": "type_of_option1",
-                "values": [list of all values for option1 of filter1],
+        "type_arg_filter": {
+            "filter1.arg1": {
+                "type": "type_of_arg1",
+                "values": [list of all values for arg1 of filter1],
             },
-            "filter2.option2": {
-                "type": "type_of_option2",
-                "values": [list of all values for option2 of filter2],
+            "filter2.arg2": {
+                "type": "type_of_arg2",
+                "values": [list of all values for arg2 of filter2],
             },
             ...
         },
@@ -106,53 +106,53 @@ class cache:
         return self.content["cache"]["modules"]
 
 
-    def get_cache_list_options(self, filter: str):
+    def get_cache_list_args(self, filter: str):
         curr_version = self.get_gpac_version()
         if self.content["version"] == curr_version:
             if self.content.get("cache", None) is not None:
-                if self.content["cache"].get("options", None) is not None:
-                    if self.content["cache"].get("options", None).get(filter, None) is not None:
-                        return self.content["cache"]["options"][filter]
+                if self.content["cache"].get("args", None) is not None:
+                    if self.content["cache"].get("args", None).get(filter, None) is not None:
+                        return self.content["cache"]["args"][filter]
                 else:
-                    self.content["cache"]["options"] = {}
+                    self.content["cache"]["args"] = {}
             else:
-                self.content["cache"] = {"options": {}}
+                self.content["cache"] = {"args": {}}
         else:
             self.content = {
                 "version": curr_version,
-                "cache": {"options": {}}
+                "cache": {"args": {}}
             }
         temp = subprocess.check_output(["gpac", "-h", filter+".*", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
-        self.content["cache"]["options"][filter] = [e.split(" ")[0] for e in temp if e!="" and e[0] not in {' ', '-'} and e[0]!= "\t"]
+        self.content["cache"]["args"][filter] = [e.split(" ")[0] for e in temp if e!="" and e[0] not in {' ', '-'} and e[0]!= "\t"]
         self.save()
-        return self.content["cache"]["options"][filter]
+        return self.content["cache"]["args"][filter]
     
 
-    def get_cache_type_option_filter(self, filter: str, option: str)-> tuple:
+    def get_cache_type_arg_filter(self, filter: str, arg: str)-> tuple:
         curr_version = self.get_gpac_version()
         if self.content["version"] == curr_version:
             if self.content.get("cache", None) is not None:
-                if self.content["cache"].get("type_option_filter", None) is not None:
-                    if self.content["cache"]["type_option_filter"].get(filter+"."+option, None) is not None:
-                        return self.content["cache"]["type_option_filter"][filter+"."+option]["type"], self.content["cache"]["type_option_filter"][filter+"."+option]["values"]
+                if self.content["cache"].get("type_arg_filter", None) is not None:
+                    if self.content["cache"]["type_arg_filter"].get(filter+"."+arg, None) is not None:
+                        return self.content["cache"]["type_arg_filter"][filter+"."+arg]["type"], self.content["cache"]["type_arg_filter"][filter+"."+arg]["values"]
                 else:
-                    self.content["cache"]["type_option_filter"] = {}
+                    self.content["cache"]["type_arg_filter"] = {}
             else:
-                self.content["cache"] = {"type_option_filter": {}}
+                self.content["cache"] = {"type_arg_filter": {}}
         else:
             self.content = {
                 "version": curr_version,
-                "cache": {"type_option_filter": {}}
+                "cache": {"type_arg_filter": {}}
             }
 
-        help_option = subprocess.check_output(["gpac", "-h", filter+"."+option, "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
-        pattern = re.compile(pattern = fr"^{option}\s*\(([^,\)]+)[,\)]")
+        help_arg = subprocess.check_output(["gpac", "-h", filter+"."+arg, "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
+        pattern = re.compile(pattern = fr"^{arg}\s*\(([^,\)]+)[,\)]")
         type = ""; values = []
-        if pattern.match(help_option[0]):
-            type = pattern.match(help_option[0]).group(1)
+        if pattern.match(help_arg[0]):
+            type = pattern.match(help_arg[0]).group(1)
         if type == "enum":
-            values = [e.strip('\t* ').split(':')[0] for e in help_option[1:] if e!='']
-        self.content["cache"]["type_option_filter"][filter+"."+option] = {"type": type, "values": values}
+            values = [e.strip('\t* ').split(':')[0] for e in help_arg[1:] if e!='']
+        self.content["cache"]["type_arg_filter"][filter+"."+arg] = {"type": type, "values": values}
         self.save()
         return (type, values)
     

@@ -17,23 +17,23 @@ help_options = ["doc", "alias", "log", "core", "cfg", "net", "prompt", "modules"
 cache_path = str(Path.home()) + "/.cache/gpac/gpac_autocomplete.json"
 cache = cm.cache(cache_path)
 
-# get all possible options for a filter
-def get_list_options(filter: str):
-    return cache.get_cache_list_options(filter)
+# get all possible args for a filter
+def get_list_args(filter: str):
+    return cache.get_cache_list_args(filter)
 
-# get type and possible values for an option of a filter
-def get_type_option_filter(filter: str, option: str) -> str:
-    return cache.get_cache_type_option_filter(filter, option)
+# get type and possible values for an arg of a filter
+def get_type_arg_filter(filter: str, arg: str) -> str:
+    return cache.get_cache_type_arg_filter(filter, arg)
 
 # lazy loading of filters
-def get_list_filters():
+def get_list_filters() -> list:
     global list_filters
     if list_filters == []:
         list_filters = cache.get_cache_list_filters()
     return list_filters
 
 # lazy loading of modules
-def get_list_modules():
+def get_list_modules() -> list:
     global list_modules
     if list_modules == []:
         list_modules = cache.get_cache_list_modules()
@@ -49,68 +49,68 @@ def get_list_protocols()-> None:
 def analyze_filter(filter, current_word, help=False):
     global exit_code
 
-    list_options = get_list_options(filter)
-    possiblities = list_options
+    list_args = get_list_args(filter)
+    possiblities = list_args
     completions = []
 
     if not help:
-        options = current_word.split(":")
+        args = current_word.split(":")
 
-        opt = [*options]
+        opt = [*args]
         for i in range(len(opt)):
             for e in possiblities:
                 if opt[i].split('=')[0] == e:
                     opt[i] = e
                     break
 
-        if options[0] != filter:
+        if args[0] != filter:
             completions = []
         elif current_word[-1] == ":":
             completions = [e for e in possiblities if e not in opt]
         else:
-            if len(options) == 1:
+            if len(args) == 1:
                 completions = [current_word + " "]
-                if len(list_options) > 0:
+                if len(list_args) > 0:
                     completions += [current_word + ":"]
             elif opt[-1] in possiblities:
-                # get type of option
-                type, values = get_type_option_filter(filter, opt[-1])
+                # get type of arg
+                type, values = get_type_arg_filter(filter, opt[-1])
 
                 if type != "bool":
-                    if "=" in options[-1]:
-                        s = options[-1].index('=')
+                    if "=" in args[-1]:
+                        s = args[-1].index('=')
                         if type == "strl":
-                            if options[-1][-1] == "=":
+                            if args[-1][-1] == "=":
                                 completions = []
-                            elif options[-1][-1] == ",":
-                                completions = [options[-1][s+1:]]
+                            elif args[-1][-1] == ",":
+                                completions = [args[-1][s+1:]]
                             else:
-                                completions = [options[-1][s+1:], options[-1][s+1:]+",", options[-1][s+1:]+":"]
+                                completions = [args[-1][s+1:], args[-1][s+1:]+",", args[-1][s+1:]+":"]
                         elif type=="str" or type=="cstr":
                             if not quote_added:
-                                completions = ['"'+options[-1][s+1:]+'":', "\"" + options[-1][s+1:]+"\" "]
+                                completions = ['"'+args[-1][s+1:]+'":', "\"" + args[-1][s+1:]+"\" "]
                             else:
-                                completions = ["\"" + options[-1][s+1:]+"\""]
+                                completions = ["\"" + args[-1][s+1:]+"\""]
                             if opt[-1] == "src":
                                 exit_code = 1
                         elif type == "enum":
 
-                            completions = [e if e!=options[-1][s+1:] else e+" " for e in values if e.startswith(options[-1][s+1:])]
-                            if options[-1][s+1:] in values:
-                                completions += [options[-1][s+1:] + ":"]
+                            completions = [e if e!=args[-1][s+1:] else e+" " for e in values if e.startswith(args[-1][s+1:])]
+                            if args[-1][s+1:] in values:
+                                completions += [args[-1][s+1:] + ":"]
                         else:
-                            if options[-1][-1] != "=":
-                                completions = [options[-1][s+1:]+':', options[-1][s+1:] + " "]
+                            if args[-1][-1] != "=":
+                                completions = [args[-1][s+1:]+':', args[-1][s+1:] + " "]
                     else:
                         completions = [opt[-1] + "="]
                 else:
-                    completions = [options[-1]+":", options[-1]+" "]
+                    completions = [args[-1]+":", args[-1]+" "]
 
             completions += [e for e in possiblities if e.startswith(args[-1]) and e not in opt]
     else:
         if current_word == filter:
             completions = [filter + " "]
-            if len(list_options) > 0:
+            if len(list_args) > 0:
                 completions += [filter + "."]
         elif current_word.startswith(filter+"."):
             index = current_word.index(".")

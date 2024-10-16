@@ -18,7 +18,7 @@ cache_path = str(Path.home()) + "/.cache/gpac/gpac_autocomplete.json"
 cache = cm.cache(cache_path)
 
 # get all possible args for a filter
-def get_list_args(filter: str):
+def get_list_args(filter: str) -> dict:
     return cache.get_cache_list_args(filter)
 
 # get type and possible values for an arg of a filter

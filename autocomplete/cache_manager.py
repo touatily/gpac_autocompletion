@@ -10,8 +10,8 @@ content = {
     "cache": {
         "filters": [list of all filters],
         "args": {
-            "filter1": [list of all args for filter1],
-            "filter2": [list of all args for filter2],
+            "filter1": {dict of all args for filter1 => arg1: type1, arg2: type2, ...},
+            "filter2": {dict of all args for filter2 => arg1: type1, arg2: type2, ...},
             ...
         },
         "modules": [list of all modules],
@@ -123,7 +123,14 @@ class cache:
                 "cache": {"args": {}}
             }
         temp = subprocess.check_output(["gpac", "-h", filter+".*", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
-        self.content["cache"]["args"][filter] = [e.split(" ")[0] for e in temp if e!="" and e[0] not in {' ', '-'} and e[0]!= "\t"]
+        self.content["cache"]["args"][filter] = {}
+        pattern = re.compile(pattern = r"^(?P<arg_name>\w+)\s*\((?P<arg_type>\w+).*$")
+        for line in temp:
+            if len(line) > 0 and line[0] not in {' ', '-', '\t'}:
+                res = pattern.match(line)
+                if res:
+                    self.content["cache"]["args"][filter][res.group('arg_name')] = res.group('arg_type')
+                    
         self.save()
         return self.content["cache"]["args"][filter]
     
@@ -145,11 +152,22 @@ class cache:
                 "cache": {"type_arg_filter": {}}
             }
 
+        type = None; values = []
+        if self.content["cache"].get("args", None) is None:
+            if self.content["cache"]["args"].get(filter, None) is None:
+                if self.content["cache"]["args"][filter].get(arg, None) is None:
+                    type = self.content["cache"]["args"][filter][arg]
+
+        if type is not None and type != "enum":
+            self.content["cache"]["type_arg_filter"][filter+"."+arg] = {"type": type, "values": values}
+            self.save()
+            return (type, values)
+
         help_arg = subprocess.check_output(["gpac", "-h", filter+"."+arg, "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
         pattern = re.compile(pattern = fr"^{arg}\s*\(([^,\)]+)[,\)]")
-        type = ""; values = []
-        if pattern.match(help_arg[0]):
-            type = pattern.match(help_arg[0]).group(1)
+        res_match = pattern.match(help_arg[0])
+        if res_match:
+            type = res_match.group(1)
         if type == "enum":
             values = [e.strip('\t* ').split(':')[0] for e in help_arg[1:] if e!='']
         self.content["cache"]["type_arg_filter"][filter+"."+arg] = {"type": type, "values": values}

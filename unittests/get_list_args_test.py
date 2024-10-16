@@ -22,4 +22,9 @@ class get_list_args_test(unittest.TestCase):
 
         for test in list_tests:
             res = ga.get_list_args(test[0])
+            res = list(res.keys())
             self.assertEqual(res, test[1], "Test failed: _" + test[0] + "_")
+
+    
+    def test_get_list_args_with_types(self):
+        pass

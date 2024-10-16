@@ -58,10 +58,12 @@ def analyze_filter(filter, current_word, help=False):
 
         opt = [*args]
         for i in range(len(opt)):
-            for e in possiblities:
-                if opt[i].split('=')[0] == e:
-                    opt[i] = e
-                    break
+            temp = opt[i].split("=")[0]
+            if len(temp) > 0 and temp[0] == '!':
+                temp = temp[1:]
+            if temp in list_args:
+                opt[i] = temp
+
 
         if args[0] != filter:
             completions = []
@@ -72,6 +74,8 @@ def analyze_filter(filter, current_word, help=False):
                 completions = [current_word + " "]
                 if len(list_args) > 0:
                     completions += [current_word + ":"]
+            elif opt[-1][0] == '!':
+                completions = ['!'+e for e in possiblities if e.startswith(opt[-1][1:]) and list_args[e] == "bool" and e not in opt]
             elif opt[-1] in possiblities:
                 # get type of arg
                 type, values = get_type_arg_filter(filter, opt[-1])

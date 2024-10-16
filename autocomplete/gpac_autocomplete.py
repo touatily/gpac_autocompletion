@@ -105,8 +105,8 @@ def analyze_filter(filter, current_word, help=False):
                         completions = [opt[-1] + "="]
                 else:
                     completions = [options[-1]+":", options[-1]+" "]
-            else:
-                completions = [e for e in possiblities if e.startswith(opt[-1]) and e not in opt]
+
+            completions += [e for e in possiblities if e.startswith(args[-1]) and e not in opt]
     else:
         if current_word == filter:
             completions = [filter + " "]
@@ -164,9 +164,8 @@ def generate_completions(command_line, cursor_position):
                 if current_word.split('.')[0] == filter:
                     completions = analyze_filter(filter, current_word, help)
                     break
-            possibilities = help_options + get_list_filters()
             if len(completions) == 0:
-                completions = [e for e in possibilities if e.startswith(current_word)]
+                completions = [e+" " for e in help_options if e.startswith(current_word)] + [e for e in get_list_filters() if e.startswith(current_word)]
 
     else:
         if (previous_word in {'-i', '-src', '-dst', '-o'}) or current_word.startswith('src=') or current_word.startswith('dst='):
@@ -208,7 +207,7 @@ def generate_completions(command_line, cursor_position):
                     completions = analyze_filter(filter, current_word, help)
                     break
             if len(completions) == 0:
-                possibilities = help_options + get_list_filters()
+                possibilities = get_list_filters()
                 completions = [e for e in possibilities if e.startswith(current_word)]
 
     return completions

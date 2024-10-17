@@ -65,6 +65,14 @@ list_tests = [
     ("gpac -o u", ['udp://', 'udpu://']),
     # Test 5:
     ("gpac -o h", ['http://', 'https://']),
+
+    ###### tests about props
+    # Test 1:
+    ("gpac -h props Da", ['DataRef ', 'DashMode ', 'DashDur ']),
+    # Test 2:
+    ("gpac -h props Au", ['AudioFormat ', 'AudioPlaybackSpeed ', 'AudioVolume ', 'AudioPan ', 'AudioPriority ']),
+    # Test 3:
+    ("gpac -h props Fi", ['FileNumber ', 'FileName ', 'FileSuffix ']),
 ]
 
 class test_generate_completions(unittest.TestCase):

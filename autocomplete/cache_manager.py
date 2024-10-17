@@ -36,7 +36,8 @@ content = {
                 "output": [list of all output filters for protocol2],
             },
             ...
-        }
+        },
+        props: [list of all properties],
 }
 """
 
@@ -203,4 +204,27 @@ class cache:
 
         self.save()
         return self.content["cache"]["protocols"]
+    
+
+    def get_cache_list_props(self):
+        current_version = self.get_gpac_version()
+        if self.content["version"] == current_version:
+            if self.content.get("cache", None) is not None:
+                if self.content["cache"].get("props", None) is not None:
+                    return self.content["cache"]["props"]
+                else:
+                    self.content["cache"]["props"] = []
+            else:
+                self.content["cache"] = {"props": []}
+        else:
+            self.content = {
+                "version": current_version,
+                "cache": {"props": []}
+            }
+
+        temp = subprocess.check_output(["gpac", "-h", "props"], stderr=subprocess.DEVNULL).decode()
+        pattern = re.compile('\\x1b\[32m([A-Z][A-Za-z]*)\\x1b\[0m')
+        self.content["cache"]["props"] = pattern.findall(temp)
+        self.save()
+        return self.content["cache"]["props"]
 

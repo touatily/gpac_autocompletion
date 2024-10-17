@@ -10,6 +10,7 @@ quote_added = False
 list_help = ["-h", "-help", "-ha", "-hx", "-hh"]
 list_filters = []
 list_modules = []
+list_props = []
 protocols = {}
 help_options = ["doc", "alias", "log", "core", "cfg", "net", "prompt", "modules", "module", "creds", "filters", 
                 "codecs", "formats", "protocols", "props", "colors", "layouts", "links", "defer"]
@@ -44,6 +45,13 @@ def get_list_protocols()-> None:
     global protocols
     if protocols == {}:
         protocols = cache.get_cache_list_protocols()
+
+# lazy loading of props
+def get_list_props()-> list:
+    global list_props
+    if list_props == []:
+        list_props = cache.get_cache_list_props()
+    return list_props
 
 
 def analyze_filter(filter, current_word, help=False):
@@ -157,7 +165,7 @@ def generate_completions(command_line, cursor_position):
         elif previous_word == "links":
             completions = [e+" " for e in get_list_filters()+[""] if e.startswith(current_word)]
         elif previous_word == "props": 
-            pass
+            completions = [e+" " for e in get_list_props()+[""] if e.startswith(current_word)]
         else:
             if current_word.split('.')[0] in get_list_filters():
                 completions = analyze_filter(current_word.split('.')[0], current_word, help)

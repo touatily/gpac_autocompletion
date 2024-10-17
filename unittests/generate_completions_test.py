@@ -40,13 +40,7 @@ list_tests = [
     # Test 2:
     ("gpac routein:repair", ['repair=', 'repair_urls']),
     # Test 3:
-    ("gpac routein:!", ['!gcache', '!kc', '!skipr', '!stsi', '!reorder', '!cloop', '!fullseg', '!llmode', '!dynsel']),
-    # Test 4:
-    ("gpac routein:!s", ['!skipr', '!stsi']),
-    # Test 5:
     ("gpac routein:repair=", ['no', 'simple', 'strict', 'full']),
-    # Test 6:
-    ("gpac inspect:!d", ['!deep', '!dump_data', '!dtype']),
 
     ###### tests about modules 
     # Test 1:

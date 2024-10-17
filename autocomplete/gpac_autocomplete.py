@@ -159,12 +159,11 @@ def generate_completions(command_line, cursor_position):
         elif previous_word == "props": 
             pass
         else:
-            for filter in get_list_filters():
-                if current_word.split('.')[0] == filter:
-                    completions = analyze_filter(filter, current_word, help)
-                    break
+            if current_word.split('.')[0] in get_list_filters():
+                completions = analyze_filter(current_word.split('.')[0], current_word, help)
             if len(completions) == 0:
-                completions = [e+" " for e in help_options if e.startswith(current_word)] + [e for e in get_list_filters() if e.startswith(current_word)]
+                completions = [e+" " for e in help_options if e.startswith(current_word)] + \
+                                [e for e in get_list_filters() if e.startswith(current_word)]
 
     else:
         if (previous_word in {'-i', '-src', '-dst', '-o'}) or current_word.startswith('src=') or current_word.startswith('dst='):

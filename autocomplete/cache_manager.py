@@ -82,8 +82,9 @@ class cache:
                 "version": current_version,
                 "cache": {}
             }
-        temp = subprocess.check_output(["gpac", "-h", "filters", "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")[1:]
-        self.content["cache"]["filters"] = [e.split(":")[0] for e in temp]
+        temp = subprocess.check_output(["gpac", "-h", "filters"], stderr=subprocess.DEVNULL).decode()
+        pattern = re.compile('\\x1b\[32m([A-Za-z]*):\\x1b\[0m')
+        self.content["cache"]["filters"] = pattern.findall(temp)
         self.save()
         return self.content["cache"]["filters"]
 
@@ -101,8 +102,9 @@ class cache:
                 "version": current_version,
                 "cache": {}
             }
-        temp = subprocess.check_output(["gpac", "-logs=ncl", "-h", "modules"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")[1:]
-        self.content["cache"]["modules"] = [e.split(":")[0] for e in temp]
+        temp = subprocess.check_output(["gpac", "-h", "modules"], stderr=subprocess.DEVNULL).decode()
+        pattern = re.compile('\\x1b\[32m([A-Za-z0-9\.\_]*):\\x1b\[0m')
+        self.content["cache"]["modules"] = pattern.findall(temp)
         self.save()
         return self.content["cache"]["modules"]
 

@@ -167,10 +167,10 @@ class cache:
             return (type, values)
 
         help_arg = subprocess.check_output(["gpac", "-h", filter+"."+arg], stderr=subprocess.DEVNULL).decode()
-        pattern = re.compile(pattern = f"^\\x1b\[32m{arg}\\x1b\[0m\s*\(([^,\)]+)[,\)]")
+        pattern = re.compile(pattern = f"^\\x1b\[32m{arg}\\x1b\[0m\s*\((?P<type>[^,\)]+)[,\)]")
         res_match = pattern.match(help_arg)
         if res_match:
-            type = res_match.group(1)
+            type = res_match.group('type')
         if type == "enum":
             pattern = re.compile('\\x1b\[33m([A-Za-z0-9]+)\\x1b\[0m\:')
             values = pattern.findall(help_arg)

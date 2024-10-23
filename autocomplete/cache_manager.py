@@ -166,13 +166,14 @@ class cache:
             self.save()
             return (type, values)
 
-        help_arg = subprocess.check_output(["gpac", "-h", filter+"."+arg, "-logs=ncl"], stderr=subprocess.DEVNULL).decode().strip("\n ").split("\n")
-        pattern = re.compile(pattern = fr"^{arg}\s*\(([^,\)]+)[,\)]")
-        res_match = pattern.match(help_arg[0])
+        help_arg = subprocess.check_output(["gpac", "-h", filter+"."+arg], stderr=subprocess.DEVNULL).decode()
+        pattern = re.compile(pattern = f"^\\x1b\[32m{arg}\\x1b\[0m\s*\(([^,\)]+)[,\)]")
+        res_match = pattern.match(help_arg)
         if res_match:
             type = res_match.group(1)
         if type == "enum":
-            values = [e.strip('\t* ').split(':')[0] for e in help_arg[1:] if e!='']
+            pattern = re.compile('\\x1b\[33m([A-Za-z0-9]+)\\x1b\[0m\:')
+            values = pattern.findall(help_arg)
         self.content["cache"]["type_arg_filter"][filter+"."+arg] = {"type": type, "values": values}
         self.save()
         return (type, values)

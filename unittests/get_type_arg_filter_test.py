@@ -18,6 +18,7 @@ class get_type_arg_filter_test(unittest.TestCase):
             ("routein", "repair_urls", ("strl", [])),
             ("routeout", "nozip", ("bool", [])),
             ("inspect", "start", ("dbl", [])),
+            ("compositor", "mode2d", ("enum", ['immediate', 'defer', 'debug'])),
         ]
 
         for test in list_tests:

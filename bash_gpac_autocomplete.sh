@@ -18,11 +18,19 @@ _gpac_completion() {
 
     if [ $code -eq 1 ]; then
         # Remove special chars in $cur
-        cur=$(echo "$cur" | sed 's/[^a-zA-Z0-9_\-\./]//g')
+        #cur=$(echo "$cur" | sed 's/[^a-zA-Z0-9_\-\./\~]//g')
         # Append default suggestions to the completions
+        local IFS=$'\n'
         local file_suggestions=($(compgen -fd -- "$cur"))
         for i in "${!file_suggestions[@]}"; do
-            if [ -d "${file_suggestions[$i]}" ]; then
+            file_suggestions[$i]=$(printf '%s' "${file_suggestions[$i]}" | sed 's/ /\\ /g')
+            # Resolve tilde to home directory
+            if [[ "${file_suggestions[$i]}" == \~/* ]]; then
+                tmp="${HOME}${file_suggestions[$i]:1}"
+            else
+                tmp="${file_suggestions[$i]}"
+            fi
+            if [ -d "${tmp}" ]; then
                 file_suggestions[$i]="${file_suggestions[$i]}/"
             else
                 file_suggestions[$i]="${file_suggestions[$i]} "

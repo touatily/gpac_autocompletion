@@ -17,6 +17,9 @@ else
     fi
 fi
 
+# delete cache file
+rm -f ~/.cache/gpac/gpac_autocomplete.json
+
 # Copy the autocompletion script
 cp bash_gpac_autocomplete.sh "$INSTALL_DIR"
 cp autocomplete/cache_manager.py "$INSTALL_DIR"

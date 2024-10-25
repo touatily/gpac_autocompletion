@@ -5,7 +5,6 @@ from shlex import split as shplit
 from pathlib import Path
 import cache_manager as cm
 
-exit_code = 0
 quote_added = False
 list_help = ["-h", "-help", "-ha", "-hx", "-hh"]
 list_filters = []
@@ -78,7 +77,6 @@ def get_list_compgen(current : str, onlyDirs : bool) -> list:
     return result
 
 def analyze_filter(filter, current_word, help=False):
-    global exit_code
     list_args = get_list_args(filter)
     possiblities = list_args
     completions = []
@@ -122,7 +120,7 @@ def analyze_filter(filter, current_word, help=False):
                             else:
                                 completions = ["\"" + args[-1][s+1:]+"\""]
                             if opt[-1] == "src":
-                                exit_code = 1
+                                completions += get_list_compgen(current_word, False)
                         elif type == "enum":
 
                             completions = [e if e!=args[-1][s+1:] else e+" " for e in values if e.startswith(args[-1][s+1:])]
@@ -151,7 +149,6 @@ def analyze_filter(filter, current_word, help=False):
 
 def generate_completions(command_line, cursor_position):
     global quote_added
-    global exit_code
 
     command_line = command_line[0:cursor_position]
 
@@ -208,16 +205,14 @@ def generate_completions(command_line, cursor_position):
 
 
             if previous_word == "-i" or previous_word == "-src":
-                exit_code = 1
                 possibilities = [e+"://" for e in input_protocols]
-                completions = [e for e in possibilities if e.startswith(current_word)]
+                completions = [e for e in possibilities if e.startswith(current_word)] + get_list_compgen(current_word, False)
             elif previous_word == "-o" or previous_word == "-dst":
                 possibilities = [e+"://" for e in output_protocols]
                 completions = [e for e in possibilities if e.startswith(current_word)]
             elif current_word.startswith("src="):
-                exit_code = 1
                 possibilities = [e+"://" for e in input_protocols]
-                completions = [e for e in possibilities if e.startswith(current_word[4:])]
+                completions = [e for e in possibilities if e.startswith(current_word[4:])] + get_list_compgen(current_word.split("=")[1], False)
             elif current_word.startswith("dst="):
                 possibilities = [e+"://" for e in output_protocols]
                 completions = [e for e in possibilities if e.startswith(current_word[4:])]
@@ -260,5 +255,3 @@ if __name__ == "__main__":
     # Print each completion on a new line, as expected by Bash
     for completion in completions:
         print(completion)
-
-    sys.exit(exit_code)

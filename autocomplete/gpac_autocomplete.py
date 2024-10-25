@@ -53,6 +53,29 @@ def get_list_props()-> list:
         list_props = cache.get_cache_list_props()
     return list_props
 
+# get autocompletion list from compgen built-in bash command
+def get_list_compgen(current : str, onlyDirs : bool) -> list:
+    from subprocess import check_output, CalledProcessError
+    if current is None: return []
+    
+    opt = "-d" if onlyDirs else "-f"
+    sub = 0
+    home = str(Path.home())
+
+    if len(current) > 0 and current[0] == "~":
+        sub = len(home)
+        current = home + current[1:]
+
+    try:
+        result = check_output(f"compgen {opt} -- \"{current}\"", shell=True, executable='/bin/bash').decode().split('\n')
+        if sub > 0:
+            result = ["~" + e[sub:] + "/" if Path(e).is_dir() else "~" + e[sub:] for e in result if e != ""]
+        else:
+            result = [e + "/" if Path(e).is_dir() else e for e in result if e != ""]
+
+    except CalledProcessError as e:
+        result = []
+    return result
 
 def analyze_filter(filter, current_word, help=False):
     global exit_code

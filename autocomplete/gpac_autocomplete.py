@@ -60,17 +60,15 @@ def get_list_compgen(current : str, onlyDirs : bool) -> list:
     opt = "-d" if onlyDirs else "-f"
     sub = 0
     home = str(Path.home())
-
     if len(current) > 0 and current[0] == "~":
         sub = len(home)
         current = home + current[1:]
-
     try:
         result = check_output(f"compgen {opt} -- \"{current}\"", shell=True, executable='/bin/bash').decode().split('\n')
         if sub > 0:
-            result = ["~" + e[sub:] + "/" if Path(e).is_dir() else "~" + e[sub:] for e in result if e != ""]
+            result = ["~" + e[sub:].replace(" ", "\ ") + "/" if Path(e).is_dir() else "~" + e[sub:].replace(" ", "\ ") + " " for e in result if e != ""]
         else:
-            result = [e + "/" if Path(e).is_dir() else e for e in result if e != ""]
+            result = [e.replace(" ", "\ ") + "/" if Path(e).is_dir() else e.replace(" ", "\ ") + " " for e in result if e != ""]
 
     except CalledProcessError as e:
         result = []

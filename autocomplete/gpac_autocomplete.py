@@ -1,7 +1,5 @@
 #! /usr/bin/python3
 
-import sys
-from shlex import split as shplit
 from pathlib import Path
 import cache_manager as cm
 
@@ -64,7 +62,8 @@ def get_list_compgen(current : str, onlyDirs : bool) -> list:
         sub = len(home)
         current = home + current[1:]
     try:
-        result = check_output(f"compgen {opt} -- \"{current}\"", shell=True, executable='/bin/bash').decode().split('\n')
+        current_cleaned = current.replace("\ ", " ")
+        result = check_output(f"compgen {opt} -- \"{current_cleaned}\"", shell=True, executable='/bin/bash').decode().split('\n')
         if sub > 0:
             result = ["~" + e[sub:].replace(" ", "\ ") + "/" if Path(e).is_dir() else "~" + e[sub:].replace(" ", "\ ") + " " for e in result if e != ""]
         else:
@@ -146,6 +145,7 @@ def analyze_filter(filter, current_word, help=False):
 
 
 def generate_completions(command_line, cursor_position):
+    from re import findall
     global quote_added
 
     command_line = command_line[0:cursor_position]
@@ -153,10 +153,12 @@ def generate_completions(command_line, cursor_position):
     if command_line.count("\"") % 2==1:
         command_line += "\""
         quote_added = True
-    command_line_words = shplit(command_line)[1:]
+
+    pattern = r'(?:[^\s"\\]+|"(?:\\.|[^"\\])*"|\\.)+'
+    command_line_words = findall(pattern, command_line)
 
 
-    if len(command_line) >= cursor_position and command_line[cursor_position-1] == " ":
+    if command_line[-1] == " " and command_line[-2] != "\\":
         command_line_words.append("")
 
     ## check wether help is being requested
@@ -237,6 +239,7 @@ def generate_completions(command_line, cursor_position):
 
 
 if __name__ == "__main__":
+    import sys
 
     if len(sys.argv) < 3:
         sys.exit(1)

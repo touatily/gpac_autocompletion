@@ -32,6 +32,9 @@ class get_list_compgen_test(unittest.TestCase):
             ("/tmp/test_dir/.",['/tmp/test_dir/./', '/tmp/test_dir/.space\\ file2 ', '/tmp/test_dir/.test ', '/tmp/test_dir/.test_dir2/', '/tmp/test_dir/../', '/tmp/test_dir/.test_file1 ',
                                 '/tmp/test_dir/.space\\ dir2/', '/tmp/test_dir/.test_file2 '],  ['/tmp/test_dir/./', '/tmp/test_dir/.test_dir2/', '/tmp/test_dir/../', '/tmp/test_dir/.space\\ dir2/']),
             ("/tmp/test_dir/this_does_not_exist", [], []),
+            ("/tmp/test_dir/space\\ f", ["/tmp/test_dir/space\\ file1 "], []),
+            ("/tmp/test_dir/space\\ ", ["/tmp/test_dir/space\\ dir1/", "/tmp/test_dir/space\\ file1 "], ["/tmp/test_dir/space\\ dir1/"]),
+            ("/tmp/test_dir/.space\\ d", ["/tmp/test_dir/.space\\ dir2/"], ["/tmp/test_dir/.space\\ dir2/"]),
         ]
 
         for test in list_tests:

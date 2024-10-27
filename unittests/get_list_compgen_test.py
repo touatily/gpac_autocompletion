@@ -9,8 +9,8 @@ class get_list_compgen_test(unittest.TestCase):
 
 
     def test_get_list_compgen(self):
-        files = [".test_file1", ".test", ".test_file2"]
-        dirs = ["test_dir1", ".test_dir2"]
+        files = [".test_file1", ".test", ".test_file2", "space file1", ".space file2"]
+        dirs = ["test_dir1", ".test_dir2", "space dir1", ".space dir2"]
 
         os.makedirs("/tmp/test_dir", exist_ok=True)
         for file in files:
@@ -28,9 +28,9 @@ class get_list_compgen_test(unittest.TestCase):
 
             # test with files in /tmp/test_dir
             ("/tmp/test_dir", ["/tmp/test_dir/"], ["/tmp/test_dir/"]),
-            ("/tmp/test_dir/.t", ["/tmp/test_dir/.test", "/tmp/test_dir/.test_dir2/", "/tmp/test_dir/.test_file1", "/tmp/test_dir/.test_file2"], ["/tmp/test_dir/.test_dir2/"]),
-            ("/tmp/test_dir/.", ["/tmp/test_dir/./", "/tmp/test_dir/.test", "/tmp/test_dir/.test_dir2/", "/tmp/test_dir/../", "/tmp/test_dir/.test_file1", "/tmp/test_dir/.test_file2"],
-                                ["/tmp/test_dir/./", "/tmp/test_dir/.test_dir2/", "/tmp/test_dir/../"]),
+            ("/tmp/test_dir/.t", ["/tmp/test_dir/.test ", "/tmp/test_dir/.test_dir2/", "/tmp/test_dir/.test_file1 ", "/tmp/test_dir/.test_file2 "], ["/tmp/test_dir/.test_dir2/"]),
+            ("/tmp/test_dir/.",['/tmp/test_dir/./', '/tmp/test_dir/.space\\ file2 ', '/tmp/test_dir/.test ', '/tmp/test_dir/.test_dir2/', '/tmp/test_dir/../', '/tmp/test_dir/.test_file1 ',
+                                '/tmp/test_dir/.space\\ dir2/', '/tmp/test_dir/.test_file2 '],  ['/tmp/test_dir/./', '/tmp/test_dir/.test_dir2/', '/tmp/test_dir/../', '/tmp/test_dir/.space\\ dir2/']),
             ("/tmp/test_dir/this_does_not_exist", [], []),
         ]
 

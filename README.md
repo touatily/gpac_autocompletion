@@ -32,7 +32,6 @@ Alternatively, to install it system-wide for all users, use:
 sudo ./install.sh
 ```
 
-
 ## Running Tests
 To run the unit tests, use the following command:
 
@@ -44,6 +43,7 @@ To run the unit tests, use the following command:
 - Fork the repository.
 - Create a new branch (`git checkout -b feature-branch`).
 - Make your changes.
+- Run the unit tests (`./run_unittests.sh`) to ensure everything works.
 - Commit your changes (`git commit -am 'Add new feature'`).
 - Push to the branch (`git push origin feature-branch`).
 - Create a new Pull Request.

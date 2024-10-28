@@ -27,4 +27,14 @@ class get_list_args_test(unittest.TestCase):
 
     
     def test_get_list_args_with_types(self):
-        pass
+        list_tests_with_types = [
+            ("j2kdec", {}),
+            ("bssplit", {'ltid': 'strl', 'sig_ltid': 'bool', 'svcqid': 'bool'}),
+            ("uncvdec", {'force_pf': 'bool', 'no_tile': 'bool'}),
+            ("avidmx", {'fps': 'frac', 'importer': 'bool', 'noreframe': 'bool'}),
+            ("nhmlr", {'index': 'dbl', 'reframe': 'bool'}),
+        ]
+
+        for test in list_tests_with_types:
+            res = ga.get_list_args(test[0])
+            self.assertEqual(res, test[1], "Test failed: _" + test[0] + "_")

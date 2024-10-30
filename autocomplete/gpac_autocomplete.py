@@ -209,13 +209,13 @@ def generate_completions(command_line, cursor_position):
                 completions = [e for e in possibilities if e.startswith(current_word)] + get_list_compgen(current_word, False)
             elif previous_word == "-o" or previous_word == "-dst":
                 possibilities = [e+"://" for e in output_protocols]
-                completions = [e for e in possibilities if e.startswith(current_word)]
+                completions = [e for e in possibilities if e.startswith(current_word)] + get_list_compgen(current_word, True)
             elif current_word.startswith("src="):
                 possibilities = [e+"://" for e in input_protocols]
                 completions = [e for e in possibilities if e.startswith(current_word[4:])] + get_list_compgen(current_word.split("=")[1], False)
             elif current_word.startswith("dst="):
                 possibilities = [e+"://" for e in output_protocols]
-                completions = [e for e in possibilities if e.startswith(current_word[4:])]
+                completions = [e for e in possibilities if e.startswith(current_word[4:])] + + get_list_compgen(current_word.split("=")[1], True)
 
 
         elif current_word == "":  

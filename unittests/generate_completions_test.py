@@ -33,6 +33,10 @@ list_tests = [
     ("gpac -h probe", ['probe ', 'probe.']),
     # Test 12:
     ("gpac -h probe.", ['probe.log ']),
+    # Test 13:
+    ("gpac -h mp", ['mp4dmx', 'mp4mx']),
+    # Test 14:
+    ("gpac -h tx", ['txtin', 'tx3g2srt', 'tx3g2vtt', 'tx3g2ttml']),
     
     ###### tests about filters
     # Test 1:
@@ -62,7 +66,7 @@ list_tests = [
     # Test 3:
     ("gpac -o t", ['tcp://', 'tcpu://']),
     # Test 4:
-    ("gpac -o u", ['udp://', 'udpu://']),
+    ("gpac -o ud", ['udp://', 'udpu://']),
     # Test 5:
     ("gpac -o h", ['http://', 'https://']),
 

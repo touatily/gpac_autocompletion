@@ -83,7 +83,7 @@ class cache:
                 "cache": {}
             }
         temp = subprocess.check_output(["gpac", "-h", "filters"], stderr=subprocess.DEVNULL).decode()
-        pattern = re.compile('\\x1b\[32m([A-Za-z]*):\\x1b\[0m')
+        pattern = re.compile('\\x1b\[32m([A-Za-z0-9]*):\\x1b\[0m')
         self.content["cache"]["filters"] = pattern.findall(temp)
         self.save()
         return self.content["cache"]["filters"]

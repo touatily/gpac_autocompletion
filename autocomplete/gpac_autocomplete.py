@@ -113,9 +113,15 @@ def analyze_filter(filter, current_word, help=False):
                                 completions = [args[-1][s+1:], args[-1][s+1:]+",", args[-1][s+1:]+":"]
                         elif type=="str" or type=="cstr":
                             if not quote_added:
-                                completions = ['"'+args[-1][s+1:]+'":', "\"" + args[-1][s+1:]+"\" "]
+                                if args[-1][s+1:].startswith("\""):
+                                    completions = [args[-1][s+1:]+":", args[-1][s+1:]+" "]
+                                else:
+                                    completions = ['"'+args[-1][s+1:]+'":', "\"" + args[-1][s+1:]+"\" ", "\"" + args[-1][s+1:]]
                             else:
-                                completions = ["\"" + args[-1][s+1:]+"\""]
+                                value = args[-1][s+1:-1]
+                                if value.startswith("\""):
+                                    completions = [value, value+"\":", value+"\" "]
+
                             if opt[-1] == "src":
                                 completions += get_list_compgen(current_word, False)
                         elif type == "enum":

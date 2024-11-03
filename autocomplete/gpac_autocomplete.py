@@ -73,8 +73,30 @@ def get_list_compgen(current : str, onlyDirs : bool) -> list:
         result = []
     return result
 
+def get_list_values_enum_args(filter: str) -> dict:
+    dict_args = get_list_args(filter)
+    list_args_enum = [e for e in dict_args if dict_args[e] == "enum"]
+    duplicate = set()
+    ambigous = set()
+    ans = {}
+    for arg in list_args_enum:
+        type, values = get_type_arg_filter(filter, arg)
+        for value in values:
+            if value not in duplicate and value not in ambigous:
+                if ans.get(value, None) is not None:
+                    duplicate.add(value)
+                    del ans[value]
+                elif value in dict_args:
+                    ambigous.add(value)
+                else:
+                    ans[value] = arg
+    return ans
+
+
 def analyze_filter(filter, current_word, help=False):
     list_args = get_list_args(filter)
+    list_enum_values = get_list_values_enum_args(filter)
+
     possiblities = list_args
     completions = []
 
@@ -86,17 +108,22 @@ def analyze_filter(filter, current_word, help=False):
             temp = opt[i].split("=")[0]
             if temp in list_args:
                 opt[i] = temp
+            elif opt[i] in list_enum_values:
+                # get arg name
+                opt[i] = list_enum_values[opt[i]]
 
 
         if args[0] != filter:
             completions = []
         elif current_word[-1] == ":":
-            completions = [e for e in possiblities if e not in opt]
+            completions = [e for e in possiblities if e not in opt] + [e for e in list_enum_values if list_enum_values[e] not in opt]
         else:
             if len(args) == 1:
                 completions = [current_word + " "]
                 if len(list_args) > 0:
                     completions += [current_word + ":"]
+            elif args[-1] in list_enum_values:
+                completions = [args[-1] + " ", args[-1] + ":"]
             elif opt[-1] in possiblities:
                 # get type of arg
                 type, values = get_type_arg_filter(filter, opt[-1])
@@ -144,7 +171,8 @@ def analyze_filter(filter, current_word, help=False):
                     else:
                         completions = [args[-1]+":", args[-1]+" ", args[-1] + "="]
 
-            completions += [e for e in possiblities if e.startswith(args[-1]) and e not in opt]
+            completions += [e for e in possiblities if e.startswith(args[-1]) and e not in opt] + \
+                            [e for e in list_enum_values if list_enum_values[e] not in opt[:-1] and e.startswith(args[-1]) and e != args[-1]]
     else:
         if current_word == filter:
             completions = [filter + " "]

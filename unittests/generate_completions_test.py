@@ -46,7 +46,7 @@ list_tests = [
     # Test 3:
     ("gpac routein:repair=", ['no', 'simple', 'strict', 'full']),
     # Test 4:
-    ("gpac inspect:f", ['fmt', 'full', 'fftmcd']),
+    ("gpac inspect:f", ['fmt', 'full', 'fftmcd', 'frame']),
     # Test 5:
     ("gpac inspect:fmt", ["fmt="]),
     # Test 6:

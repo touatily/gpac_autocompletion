@@ -38,6 +38,10 @@ content = {
             ...
         },
         props: [list of all properties],
+        enum_values: {
+            "filter1": {dict of all enum values of args for filter1 => value1=>arg1, value2=>arg2, ...},
+            "filter2": {dict of all enum values of args for filter2 => value1=>arg1, value2=>arg2, ...},
+        }
     }
 }
 """
@@ -231,4 +235,43 @@ class cache:
         self.content["cache"]["props"] = pattern.findall(temp)
         self.save()
         return self.content["cache"]["props"]
+    
+
+    def get_cache_list_values_enum_args(self, filter: str)-> dict:
+        current_version = self.get_gpac_version()
+        if self.content["version"] == current_version:
+            if self.content.get("cache", None) is not None:
+                if self.content["cache"].get("enum_values", None) is not None:
+                    if self.content["cache"]["enum_values"].get(filter, None) is not None:
+                        return self.content["cache"]["enum_values"][filter]
+                else:
+                    self.content["cache"]["enum_values"] = {}
+            else:
+                self.content["cache"] = {"enum_values": {}}
+        else:
+            self.content = {
+                "version": current_version,
+                "cache": {"enum_values": {}}
+            }
+    
+        dict_args = self.get_cache_list_args(filter)
+        list_args_enum = [e for e in dict_args if dict_args[e] == "enum"]
+        duplicate = set()
+        ambigous = set()
+        ans = {}
+        for arg in list_args_enum:
+            type, values = self.get_cache_type_arg_filter(filter, arg)
+            for value in values:
+                if value not in duplicate and value not in ambigous:
+                    if ans.get(value, None) is not None:
+                        duplicate.add(value)
+                        del ans[value]
+                    elif value in dict_args:
+                        ambigous.add(value)
+                    else:
+                        ans[value] = arg
+
+        self.content["cache"]["enum_values"][filter] = ans
+        self.save()
+        return ans
 

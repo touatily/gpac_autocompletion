@@ -74,23 +74,7 @@ def get_list_compgen(current : str, onlyDirs : bool) -> list:
     return result
 
 def get_list_values_enum_args(filter: str) -> dict:
-    dict_args = get_list_args(filter)
-    list_args_enum = [e for e in dict_args if dict_args[e] == "enum"]
-    duplicate = set()
-    ambigous = set()
-    ans = {}
-    for arg in list_args_enum:
-        type, values = get_type_arg_filter(filter, arg)
-        for value in values:
-            if value not in duplicate and value not in ambigous:
-                if ans.get(value, None) is not None:
-                    duplicate.add(value)
-                    del ans[value]
-                elif value in dict_args:
-                    ambigous.add(value)
-                else:
-                    ans[value] = arg
-    return ans
+    return cache.get_cache_list_values_enum_args(filter)
 
 
 def analyze_filter(filter, current_word, help=False):

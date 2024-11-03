@@ -15,6 +15,11 @@ For more information about `gpac`, visit the [gpac repository](https://github.co
 
 ## Installation
 
+Before you begin, ensure you have Python 3 installed on your system. You can check your Python version with:
+```sh
+python3 --version
+```
+
 1. Clone the repository:
 ```sh
 git clone https://github.com/touatily/gpac_autocompletion.git

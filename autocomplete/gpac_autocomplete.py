@@ -163,6 +163,7 @@ def generate_completions(command_line, cursor_position):
 
     command_line = command_line[0:cursor_position]
 
+    quote_added = False
     if command_line.count("\"") % 2==1:
         command_line += "\""
         quote_added = True

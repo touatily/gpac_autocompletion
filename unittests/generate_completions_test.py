@@ -45,6 +45,16 @@ list_tests = [
     ("gpac routein:repair", ['repair=', 'repair_urls']),
     # Test 3:
     ("gpac routein:repair=", ['no', 'simple', 'strict', 'full']),
+    # Test 4:
+    ("gpac inspect:f", ['fmt', 'full', 'fftmcd']),
+    # Test 5:
+    ("gpac inspect:fmt", ["fmt="]),
+    # Test 6:
+    ("gpac inspect:fmt=", ['"":', '"" ', '"']),
+    # Test 7:
+    ("gpac inspect:fmt=\"format inspect ...", ['"format inspect ...', '"format inspect ...":', '"format inspect ..." ']),
+    # Test 8:  
+    ("gpac inspect:fmt=\"", ['"', '"":', '"" ']),
 
     ###### tests about modules 
     # Test 1:

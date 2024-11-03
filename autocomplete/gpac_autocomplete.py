@@ -138,7 +138,7 @@ def analyze_filter(filter, current_word, help=False):
                     if "=" in args[-1]:
                         s = args[-1].index('=')
                         value = args[-1][s+1:]
-                        completions = [e if e!=value else e+" " for e in {"true", "false"} if e.startswith(value)]
+                        completions = [e if e!=value else e+" " for e in ["true", "false"] if e.startswith(value)]
                         if value in {"true", "false"}:
                             completions += [value + ":"]
                     else:

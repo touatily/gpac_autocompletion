@@ -55,6 +55,14 @@ list_tests = [
     ("gpac inspect:fmt=\"format inspect ...", ['"format inspect ...', '"format inspect ...":', '"format inspect ..." ']),
     # Test 8:  
     ("gpac inspect:fmt=\"", ['"', '"":', '"" ']),
+    # Test 9:
+    ("gpac inspect:fmt=format", ['"format":', '"format" ', '"format']),
+    # Test 10:
+    ("gpac inspect:allp", ['allp:', 'allp ', 'allp=']),
+    # Test 11:
+    ("gpac inspect:allp=", ['true', 'false']),
+    # Test 12:
+    ("gpac inspect:allp=t", ['true']),
 
     ###### tests about modules 
     # Test 1:

@@ -63,6 +63,10 @@ list_tests = [
     ("gpac inspect:allp=", ['true', 'false']),
     # Test 12:
     ("gpac inspect:allp=t", ['true']),
+    # Test 13:
+    ("gpac httpin", ['httpin ', 'httpin:']),
+    # Test 14:
+    ("gpac httpin:", ['src', 'block_size', 'cache', 'range', 'ext', 'mime', 'blockio', 'auto', 'disk', 'keep', 'mem', 'none']),
 
     ###### tests about modules 
     # Test 1:

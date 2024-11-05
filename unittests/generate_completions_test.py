@@ -85,7 +85,7 @@ list_tests = [
                          'gm_ft_font.so ', ' ']),
     # Test 3:
     ("gpac -h modules ", ['gm_alsa.so ', 'gm_x11_out.so ', 'gm_jack.so ', 'gm_caca_out.so ',
-                          'gm_sdl_out.so ', 'gm_pulseaudio.so ', 'gm_validator.so ', 
+                          'gm_sdl_out.so ', 'gm_pulseaudio.so ', 'gm_validator.so ',
                           'gm_ft_font.so ', ' ']),
     # Test 4:
     ("gpac -h module gm_", ['gm_alsa.so ', 'gm_x11_out.so ', 'gm_jack.so ', 'gm_caca_out.so ',

@@ -1,7 +1,7 @@
 """
 Module: cache_manager
-This module provides a caching mechanism for the GPAC autocompletion script. 
-It caches various GPAC components such as filters, modules, arguments, protocols, 
+This module provides a caching mechanism for the GPAC autocompletion script.
+It caches various GPAC components such as filters, modules, arguments, protocols,
 properties, and enum values to improve performance and reduce redundant command executions.
 Classes:
     Cache: Manages the caching of GPAC command outputs.
@@ -84,10 +84,10 @@ class Cache:
         Get the version of the GPAC binary.
         """
         result = sp.check_output(["gpac"], stderr=sp.STDOUT).decode()
-        pattern = r".*version\s([\dA-Za-z\.\-]+).*"
+        pattern = r".*version\s(?P<version>[\dA-Za-z\.\-]+).*"
         match = re.search(pattern, result)
         if match:
-            return match.group(1)
+            return match.group("version")
         return None
 
 
@@ -162,14 +162,15 @@ class Cache:
                 "version": curr_version,
                 "cache": {"args": {}}
             }
-        temp = sp.check_output(["gpac", "-h", gfilter+".*", "-logs=ncl"], stderr=sp.DEVNULL).decode().strip("\n ").split("\n")
+        tmp = sp.check_output(["gpac", "-h", gfilter+".*", "-logs=ncl"], stderr=sp.DEVNULL).decode()
+        tmp = tmp.strip("\n ").split("\n")
         self.content["cache"]["args"][gfilter] = {}
-        pattern = re.compile(pattern = r"^(?P<arg_name>\w+)\s*\((?P<arg_type>\w+).*$")
-        for line in temp:
+        pattern = re.compile(pattern = r"^(?P<name>\w+)\s*\((?P<type>\w+).*$")
+        for line in tmp:
             if len(line) > 0 and line[0] not in {' ', '-', '\t'}:
                 res = pattern.match(line)
                 if res:
-                    self.content["cache"]["args"][gfilter][res.group('arg_name')] = res.group('arg_type')
+                    self.content["cache"]["args"][gfilter][res.group('name')] = res.group('type')
         self.save()
         return self.content["cache"]["args"][gfilter]
 
@@ -180,12 +181,14 @@ class Cache:
         If the cache is not present or the version of GPAC has changed,
         then the type and values of the argument are fetched from the GPAC binary.
         """
+        f_arg = f"{gfilter}.{arg}"
         curr_version = self.get_gpac_version()
         if self.content["version"] == curr_version:
             if self.content.get("cache", None) is not None:
                 if self.content["cache"].get("type_arg_filter", None) is not None:
-                    if self.content["cache"]["type_arg_filter"].get(gfilter+"."+arg, None) is not None:
-                        return self.content["cache"]["type_arg_filter"][gfilter+"."+arg]["type"], self.content["cache"]["type_arg_filter"][gfilter+"."+arg]["values"]
+                    if self.content["cache"]["type_arg_filter"].get(f_arg, None) is not None:
+                        return self.content["cache"]["type_arg_filter"][f_arg]["type"], \
+                                self.content["cache"]["type_arg_filter"][f_arg]["values"]
                 else:
                     self.content["cache"]["type_arg_filter"] = {}
             else:
@@ -198,12 +201,11 @@ class Cache:
 
         type_arg = None
         values = []
-        if self.content["cache"].get("args", None) is None:
-            if self.content["cache"]["args"].get(gfilter, None) is None:
-                if self.content["cache"]["args"][gfilter].get(arg, None) is None:
-                    type_arg = self.content["cache"]["args"][gfilter][arg]
+        if self.content["cache"].get("args", None) is not None and \
+        self.content["cache"]["args"].get(gfilter, None) is not None and \
+        self.content["cache"]["args"][gfilter].get(arg, None) is not None:
+            type_arg = self.content["cache"]["args"][gfilter][arg]
 
-        f_arg = f"{gfilter}.{arg}"
         if type_arg is not None and type_arg != "enum":
             self.content["cache"]["type_arg_filter"][f_arg] = {"type": type_arg, "values": values}
             self.save()
@@ -233,8 +235,7 @@ class Cache:
             if self.content.get("cache", None) is not None:
                 if self.content["cache"].get("protocols", None) is not None:
                     return self.content["cache"]["protocols"]
-                else:
-                    self.content["cache"]["protocols"] = {}
+                self.content["cache"]["protocols"] = {}
             else:
                 self.content["cache"] = {"protocols": {}}
         else:
@@ -243,15 +244,20 @@ class Cache:
                 "cache": {"protocols": {}}
             }
 
-        temp = sp.check_output(["gpac", "-ha", "protocols", "-logs=ncl"], stderr=sp.DEVNULL).decode().strip("\n").split("\n")[1:]
-        pattern = re.compile(r'(?P<protocol>\w+):(?:\s*in\s*\((?P<in_filters>[^\)]*)\))?(?:\s*out\s*\((?P<out_filters>[^\)]*)\))?')
+        temp = sp.check_output(["gpac", "-ha", "protocols", "-logs=ncl"], stderr=sp.DEVNULL)
+        temp = temp.decode().strip("\n").split("\n")[1:]
+        regex = r"(?P<proto>\w+):(?:\s*in\s*\((?P<in>[^\)]*)\))?(?:\s*out\s*\((?P<out>[^\)]*)\))?"
+        pattern = re.compile(regex)
         for line in temp:
             match = pattern.match(line)
             if match:
-                protocol = match.group('protocol')
-                in_filters = match.group('in_filters')
-                out_filters = match.group('out_filters')
-                self.content["cache"]["protocols"][protocol] = {"input": in_filters.split(", ") if in_filters else [], "output": out_filters.split(", ") if out_filters else []}
+                protocol = match.group('proto')
+                in_filters = match.group('in')
+                out_filters = match.group('out')
+                self.content["cache"]["protocols"][protocol] = {
+                    "input": in_filters.split(", ") if in_filters else [],
+                    "output": out_filters.split(", ") if out_filters else []
+                }
 
         self.save()
         return self.content["cache"]["protocols"]
@@ -268,8 +274,7 @@ class Cache:
             if self.content.get("cache", None) is not None:
                 if self.content["cache"].get("props", None) is not None:
                     return self.content["cache"]["props"]
-                else:
-                    self.content["cache"]["props"] = []
+                self.content["cache"]["props"] = []
             else:
                 self.content["cache"] = {"props": []}
         else:

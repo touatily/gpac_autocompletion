@@ -20,7 +20,7 @@ class GetListArgsTest(unittest.TestCase):
             res = list(res.keys())
             self.assertEqual(res, test[1], "Test failed: _" + test[0] + "_")
 
-    
+
     def test_get_list_args_with_types(self):
         list_tests_with_types = [
             ("j2kdec", {}),

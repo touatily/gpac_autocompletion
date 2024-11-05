@@ -1,6 +1,6 @@
 """
 Unit tests for the `get_list_compgen` function in the `autocomplete.gpac_autocomplete` module.
-This test suite verifies the behavior of the `get_list_compgen` function, which generates a list 
+This test suite verifies the behavior of the `get_list_compgen` function, which generates a list
 of file and directory completions based on a given path prefix.
 """
 import unittest
@@ -30,7 +30,7 @@ class GetListCompgenTest(unittest.TestCase):
             # test with files in /tmp/test_dir
             ("/tmp/test_dir", ["/tmp/test_dir/"], ["/tmp/test_dir/"]),
             ("/tmp/test_dir/.t", ["/tmp/test_dir/.test ", "/tmp/test_dir/.test_dir2/",
-                                "/tmp/test_dir/.test_file1 ", "/tmp/test_dir/.test_file2 "], 
+                                "/tmp/test_dir/.test_file1 ", "/tmp/test_dir/.test_file2 "],
                                 ["/tmp/test_dir/.test_dir2/"]),
             ("/tmp/test_dir/.",['/tmp/test_dir/./', '/tmp/test_dir/.space\\ file2 ',
                                 '/tmp/test_dir/.test ', '/tmp/test_dir/.test_dir2/',
@@ -40,7 +40,7 @@ class GetListCompgenTest(unittest.TestCase):
                                  '/tmp/test_dir/../', '/tmp/test_dir/.space\\ dir2/']),
             ("/tmp/test_dir/this_does_not_exist", [], []),
             ("/tmp/test_dir/space\\ f", ["/tmp/test_dir/space\\ file1 "], []),
-            ("/tmp/test_dir/space\\ ", ["/tmp/test_dir/space\\ dir1/", 
+            ("/tmp/test_dir/space\\ ", ["/tmp/test_dir/space\\ dir1/",
                                 "/tmp/test_dir/space\\ file1 "], ["/tmp/test_dir/space\\ dir1/"]),
             ("/tmp/test_dir/.space\\ d", ["/tmp/test_dir/.space\\ dir2/"],
                                             ["/tmp/test_dir/.space\\ dir2/"]),

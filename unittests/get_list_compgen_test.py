@@ -38,13 +38,13 @@ class get_list_compgen_test(unittest.TestCase):
         ]
 
         for test in list_tests:
-            res = ga.get_list_compgen(test[0], onlyDirs=False)
+            res = ga.get_list_compgen(test[0], only_dirs=False)
             self.assertEqual(res, test[1], "Test failed (files + dirs): _" + test[0] + "_")
 
 
         
         for test in list_tests:
-            res = ga.get_list_compgen(test[0], onlyDirs=True)
+            res = ga.get_list_compgen(test[0], only_dirs=True)
             self.assertEqual(res, test[2], "Test failed (dirs): _" + test[0] + "_")
 
 

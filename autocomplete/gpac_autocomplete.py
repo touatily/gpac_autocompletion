@@ -1,7 +1,10 @@
 #! /usr/bin/python3
 
+from re import findall
 from pathlib import Path
+from subprocess import check_output, CalledProcessError
 import cache_manager as cm
+
 
 quote_added = False
 list_help = ["-h", "-help", "-ha", "-hx", "-hh"]
@@ -9,19 +12,20 @@ list_filters = []
 list_modules = []
 list_props = []
 protocols = {}
-help_options = ["doc", "alias", "log", "core", "cfg", "net", "prompt", "modules", "module", "creds", "filters", 
-                "codecs", "formats", "protocols", "props", "colors", "layouts", "links", "defer"]
+help_options = ["doc", "alias", "log", "core", "cfg", "net", "prompt", "modules", "module", "creds",
+                "filters", "codecs", "formats", "protocols", "props", "colors", "layouts", "links", 
+                "defer"]
 
-cache_path = str(Path.home()) + "/.cache/gpac/gpac_autocomplete.json"
-cache = cm.cache(cache_path)
+CACHE_PATH = str(Path.home()) + "/.cache/gpac/gpac_autocomplete.json"
+cache = cm.Cache(CACHE_PATH)
 
 # get all possible args for a filter
-def get_list_args(filter: str) -> dict:
-    return cache.get_cache_list_args(filter)
+def get_list_args(gfilter: str) -> dict:
+    return cache.get_cache_list_args(gfilter)
 
 # get type and possible values for an arg of a filter
-def get_type_arg_filter(filter: str, arg: str) -> str:
-    return cache.get_cache_type_arg_filter(filter, arg)
+def get_type_arg_filter(gfilter: str, arg: str) -> str:
+    return cache.get_cache_type_arg_filter(gfilter, arg)
 
 # lazy loading of filters
 def get_list_filters() -> list:
@@ -51,11 +55,11 @@ def get_list_props()-> list:
     return list_props
 
 # get autocompletion list from compgen built-in bash command
-def get_list_compgen(current : str, onlyDirs : bool) -> list:
-    from subprocess import check_output, CalledProcessError
-    if current is None: return []
-    
-    opt = "-d" if onlyDirs else "-f"
+def get_list_compgen(current : str, only_dirs : bool)-> list:
+    if current is None:
+        return []
+
+    opt = "-d" if only_dirs else "-f"
     sub = 0
     home = str(Path.home())
     if len(current) > 0 and current[0] == "~":
@@ -65,9 +69,9 @@ def get_list_compgen(current : str, onlyDirs : bool) -> list:
         current_cleaned = current.replace("\ ", " ")
         result = check_output(f"compgen {opt} -- \"{current_cleaned}\"", shell=True, executable='/bin/bash').decode().split('\n')
         if sub > 0:
-            result = ["~" + e[sub:].replace(" ", "\ ") + "/" if Path(e).is_dir() else "~" + e[sub:].replace(" ", "\ ") + " " for e in result if e != ""]
+            result = ["~" + e[sub:].replace(" ", r"\ ") + "/" if Path(e).is_dir() else "~" + e[sub:].replace(" ", r"\ ") + " " for e in result if e != ""]
         else:
-            result = [e.replace(" ", "\ ") + "/" if Path(e).is_dir() else e.replace(" ", "\ ") + " " for e in result if e != ""]
+            result = [e.replace(" ", r"\ ") + "/" if Path(e).is_dir() else e.replace(" ", r"\ ") + " " for e in result if e != ""]
 
     except CalledProcessError as e:
         result = []
@@ -170,7 +174,6 @@ def analyze_filter(filter, current_word, help=False):
 
 
 def generate_completions(command_line, cursor_position):
-    from re import findall
     global quote_added
 
     command_line = command_line[0:cursor_position]
@@ -199,7 +202,7 @@ def generate_completions(command_line, cursor_position):
     ## get current and previous word being typed
     current_word = ""
     previous_word = ""
-    
+
     if len(command_line_words) > 0:
         current_word = command_line_words[-1]
         if len(command_line_words) > 1:
@@ -274,7 +277,7 @@ if __name__ == "__main__":
     command_line = sys.argv[2][1:-1]   # Remove the quotes added by Bash script
 
     # Generate possible completions
-    try: 
+    try:
         completions = generate_completions(command_line, pos)
     except Exception as e:
         completions = []

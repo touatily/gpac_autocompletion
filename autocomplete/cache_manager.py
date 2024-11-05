@@ -88,9 +88,15 @@ class Cache:
         match = re.search(pattern, result)
         if match:
             return match.group(1)
+        return None
 
 
     def get_cache_list_filters(self)-> list:
+        """
+        Get the list of filters from the cache.
+        If the cache is not present or the version of GPAC has changed,
+        then the list of filters is fetched from the GPAC binary.
+        """
         current_version = self.get_gpac_version()
         if self.content["version"] == current_version:
             if self.content.get("cache", None) is not None:
@@ -111,6 +117,11 @@ class Cache:
 
 
     def get_cache_list_modules(self)-> list:
+        """
+        Get the list of modules from the cache.
+        If the cache is not present or the version of GPAC has changed,
+        then the list of modules is fetched from the GPAC binary.
+        """
         current_version = self.get_gpac_version()
         if self.content["version"] == current_version:
             if self.content.get("cache", None) is not None:
@@ -131,6 +142,11 @@ class Cache:
 
 
     def get_cache_list_args(self, gfilter: str)-> dict:
+        """
+        Get the list of arguments of a filter from the cache.
+        If the cache is not present or the version of GPAC has changed,
+        then the list of arguments is fetched from the GPAC binary.
+        """
         curr_version = self.get_gpac_version()
         if self.content["version"] == curr_version:
             if self.content.get("cache", None) is not None:
@@ -159,6 +175,11 @@ class Cache:
 
 
     def get_cache_type_arg_filter(self, gfilter: str, arg: str)-> tuple:
+        """
+        Get the type and values of an argument of a filter from the cache.
+        If the cache is not present or the version of GPAC has changed,
+        then the type and values of the argument are fetched from the GPAC binary.
+        """
         curr_version = self.get_gpac_version()
         if self.content["version"] == curr_version:
             if self.content.get("cache", None) is not None:
@@ -182,12 +203,13 @@ class Cache:
                 if self.content["cache"]["args"][gfilter].get(arg, None) is None:
                     type_arg = self.content["cache"]["args"][gfilter][arg]
 
+        f_arg = f"{gfilter}.{arg}"
         if type_arg is not None and type_arg != "enum":
-            self.content["cache"]["type_arg_filter"][gfilter+"."+arg] = {"type": type_arg, "values": values}
+            self.content["cache"]["type_arg_filter"][f_arg] = {"type": type_arg, "values": values}
             self.save()
             return (type_arg, values)
 
-        help_arg = sp.check_output(["gpac", "-h", gfilter+"."+arg], stderr=sp.DEVNULL).decode()
+        help_arg = sp.check_output(["gpac", "-h", f_arg], stderr=sp.DEVNULL).decode()
         pattern = re.compile(pattern = rf"^\x1b\[32m{arg}\x1b\[0m\s*\((?P<type>[^,\)]+)[,\)]")
         res_match = pattern.match(help_arg)
         if res_match:
@@ -195,12 +217,17 @@ class Cache:
         if type_arg == "enum":
             pattern = re.compile(r"\x1b\[33m([A-Za-z0-9]+)\x1b\[0m\:")
             values = pattern.findall(help_arg)
-        self.content["cache"]["type_arg_filter"][gfilter+"."+arg] = {"type": type_arg, "values": values}
+        self.content["cache"]["type_arg_filter"][f_arg] = {"type": type_arg, "values": values}
         self.save()
         return (type_arg, values)
 
 
     def get_cache_list_protocols(self)-> dict:
+        """
+        Get the list of protocols from the cache.
+        If the cache is not present or the version of GPAC has changed,
+        then the list of protocols is fetched from the GPAC binary.
+        """
         current_version = self.get_gpac_version()
         if self.content["version"] == current_version:
             if self.content.get("cache", None) is not None:
@@ -231,6 +258,11 @@ class Cache:
 
 
     def get_cache_list_props(self)-> list:
+        """
+        Get the list of properties from the cache.
+        If the cache is not present or the version of GPAC has changed,
+        then the list of properties is fetched from the GPAC binary.
+        """
         current_version = self.get_gpac_version()
         if self.content["version"] == current_version:
             if self.content.get("cache", None) is not None:
@@ -254,6 +286,11 @@ class Cache:
 
 
     def get_cache_list_values_enum_args(self, gfilter: str)-> dict:
+        """
+        Retrieve the list of enum values for arguments of a specified filter from the cache.
+        If the cache is absent or the GPAC version has changed, recalculate the enum values.
+        Duplicate values are removed.
+        """
         current_version = self.get_gpac_version()
         if self.content["version"] == current_version:
             if self.content.get("cache", None) is not None:
@@ -273,18 +310,15 @@ class Cache:
         dict_args = self.get_cache_list_args(gfilter)
         list_args_enum = [e for e in dict_args if dict_args[e] == "enum"]
         duplicate = set()
-        ambigous = set()
         ans = {}
         for arg in list_args_enum:
             _, values = self.get_cache_type_arg_filter(gfilter, arg)
             for value in values:
-                if value not in duplicate and value not in ambigous:
+                if value not in duplicate:
                     if ans.get(value, None) is not None:
                         duplicate.add(value)
                         del ans[value]
-                    elif value in dict_args:
-                        ambigous.add(value)
-                    else:
+                    elif value not in dict_args:
                         ans[value] = arg
 
         self.content["cache"]["enum_values"][gfilter] = ans

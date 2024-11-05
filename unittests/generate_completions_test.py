@@ -1,16 +1,22 @@
-#! /usr/bin/env python3
+"""
+Unit tests for the GPAC autocompletion feature.
+
+This module contains unit tests for the `generate_completions` function in the
+`autocomplete.gpac_autocomplete` module. The tests cover various scenarios for
+command-line autocompletion, including help arguments, filters, modules, protocols,
+and properties.
+"""
 
 import unittest
-import sys
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../autocomplete')))
+import random
+import string
 import autocomplete.gpac_autocomplete as ga
 
 list_tests = [
     ###### tests about help args
     # Test 1:
-    ("gpac -h inspect.d", ['inspect.deep ', 'inspect.dump_data ', 'inspect.dur ', 'inspect.dtype ']),
+    ("gpac -h inspect.d", ['inspect.deep ', 'inspect.dump_data ', 'inspect.dur ',
+                           'inspect.dtype ']),
     # Test 2:
     ("gpac -h inspect.deep", ['inspect.deep ']),
     # Test 3:
@@ -28,7 +34,7 @@ list_tests = [
     # Test 9:
     ("gpac -h jsf", ['jsf ', 'jsf.']),
     # Test 10:
-    ("gpac -h routein.repa", ['routein.repair ', 'routein.repair_urls ']), 
+    ("gpac -h routein.repa", ['routein.repair ', 'routein.repair_urls ']),
     # Test 11:
     ("gpac -h probe", ['probe ', 'probe.']),
     # Test 12:
@@ -37,7 +43,7 @@ list_tests = [
     ("gpac -h mp", ['mp4dmx', 'mp4mx']),
     # Test 14:
     ("gpac -h tx", ['txtin', 'tx3g2srt', 'tx3g2vtt', 'tx3g2ttml']),
-    
+
     ###### tests about filters
     # Test 1:
     ("gpac routein:repa", ['repair', 'repair_urls']),
@@ -52,8 +58,9 @@ list_tests = [
     # Test 6:
     ("gpac inspect:fmt=", ['"":', '"" ', '"']),
     # Test 7:
-    ("gpac inspect:fmt=\"format inspect ...", ['"format inspect ...', '"format inspect ...":', '"format inspect ..." ']),
-    # Test 8:  
+    ("gpac inspect:fmt=\"format inspect ...", ['"format inspect ...', '"format inspect ...":',
+                                               '"format inspect ..." ']),
+    # Test 8:
     ("gpac inspect:fmt=\"", ['"', '"":', '"" ']),
     # Test 9:
     ("gpac inspect:fmt=format", ['"format":', '"format" ', '"format']),
@@ -66,20 +73,27 @@ list_tests = [
     # Test 13:
     ("gpac httpin", ['httpin ', 'httpin:']),
     # Test 14:
-    ("gpac httpin:", ['src', 'block_size', 'cache', 'range', 'ext', 'mime', 'blockio', 'auto', 'disk', 'keep', 'mem', 'none']),
+    ("gpac httpin:", ['src', 'block_size', 'cache', 'range', 'ext', 'mime', 'blockio', 'auto',
+                      'disk', 'keep', 'mem', 'none']),
 
-    ###### tests about modules 
+    ###### tests about modules
     # Test 1:
     ("gpac -h modul", ['modules ', 'module ']),
     # Test 2:
-    ("gpac -h module ", ['gm_alsa.so ', 'gm_x11_out.so ', 'gm_jack.so ', 'gm_caca_out.so ', 'gm_sdl_out.so ', 'gm_pulseaudio.so ', 'gm_validator.so ', 'gm_ft_font.so ', ' ']),
+    ("gpac -h module ", ['gm_alsa.so ', 'gm_x11_out.so ', 'gm_jack.so ', 'gm_caca_out.so ',
+                         'gm_sdl_out.so ', 'gm_pulseaudio.so ', 'gm_validator.so ',
+                         'gm_ft_font.so ', ' ']),
     # Test 3:
-    ("gpac -h modules ", ['gm_alsa.so ', 'gm_x11_out.so ', 'gm_jack.so ', 'gm_caca_out.so ', 'gm_sdl_out.so ', 'gm_pulseaudio.so ', 'gm_validator.so ', 'gm_ft_font.so ', ' ']),
+    ("gpac -h modules ", ['gm_alsa.so ', 'gm_x11_out.so ', 'gm_jack.so ', 'gm_caca_out.so ',
+                          'gm_sdl_out.so ', 'gm_pulseaudio.so ', 'gm_validator.so ', 
+                          'gm_ft_font.so ', ' ']),
     # Test 4:
-    ("gpac -h module gm_", ['gm_alsa.so ', 'gm_x11_out.so ', 'gm_jack.so ', 'gm_caca_out.so ', 'gm_sdl_out.so ', 'gm_pulseaudio.so ', 'gm_validator.so ', 'gm_ft_font.so ']),
+    ("gpac -h module gm_", ['gm_alsa.so ', 'gm_x11_out.so ', 'gm_jack.so ', 'gm_caca_out.so ',
+                            'gm_sdl_out.so ', 'gm_pulseaudio.so ', 'gm_validator.so ',
+                            'gm_ft_font.so ']),
     # Test 5:
     ("gpac -h module gm_f", ['gm_ft_font.so ']),
-    
+
     ###### tests about protocols
     # Test 1:
     ("gpac -o g", ['gfio://']),
@@ -96,16 +110,16 @@ list_tests = [
     # Test 1:
     ("gpac -h props Da", ['DataRef ', 'DashMode ', 'DashDur ']),
     # Test 2:
-    ("gpac -h props Au", ['AudioFormat ', 'AudioPlaybackSpeed ', 'AudioVolume ', 'AudioPan ', 'AudioPriority ']),
+    ("gpac -h props Au", ['AudioFormat ', 'AudioPlaybackSpeed ', 'AudioVolume ', 'AudioPan ',
+                          'AudioPriority ']),
     # Test 3:
     ("gpac -h props Fi", ['FileNumber ', 'FileName ', 'FileSuffix ']),
 ]
 
-class test_generate_completions(unittest.TestCase):
+class GenerateCompletionsTest(unittest.TestCase):
 
     # Test with the cursor position at the end of the command line
     def test_completions_at_end(self):
-        global list_tests
         for test in list_tests:
             res = ga.generate_completions(test[0], len(test[0]))
             self.assertEqual(res, test[1], "Test failed: _" + test[0] + "_")
@@ -113,9 +127,6 @@ class test_generate_completions(unittest.TestCase):
 
     # Test with the cursor position before the last character
     def test_completions_with_random_suffix(self):
-        import random
-        import string
-        global list_tests
         for test in list_tests:
             length = len(test[0])
 
@@ -126,7 +137,6 @@ class test_generate_completions(unittest.TestCase):
             command_line = test[0] + random_string
             res = ga.generate_completions(command_line, length)
             self.assertEqual(res, test[1], "Test failed: _" + command_line + "_")
-        
 
 
 if __name__ == '__main__':

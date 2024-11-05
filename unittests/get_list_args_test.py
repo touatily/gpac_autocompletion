@@ -1,12 +1,7 @@
 import unittest
-import sys
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 import autocomplete.gpac_autocomplete as ga
 
-class get_list_args_test(unittest.TestCase):
-
+class GetListArgsTest(unittest.TestCase):
 
     def test_get_list_args(self):
         list_tests = [

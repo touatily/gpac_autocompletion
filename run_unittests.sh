@@ -3,6 +3,9 @@
 # Directory containing the unit tests
 TEST_DIR="./unittests"
 
+# Add the autocomplete directory to the PYTHONPATH
+export PYTHONPATH="$PYTHONPATH:$(dirname "$0")/autocomplete"
+
 # Check if the test directory exists
 if [ ! -d "$TEST_DIR" ]; then
     echo "Test directory $TEST_DIR does not exist."

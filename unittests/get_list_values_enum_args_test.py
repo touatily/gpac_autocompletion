@@ -1,8 +1,4 @@
 import unittest
-import sys
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 import autocomplete.gpac_autocomplete as ga
 
 list_tests = [
@@ -34,7 +30,6 @@ list_tests = [
 class get_list_values_enum_args_test(unittest.TestCase):
 
     def test_get_list_values_enum_args(self):
-        global list_tests
         for test in list_tests:
             res = ga.get_list_values_enum_args(test[0])
             self.assertEqual(res, test[1], "Test failed: filter = " + test[0])

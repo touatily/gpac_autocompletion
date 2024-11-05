@@ -66,7 +66,7 @@ def get_list_compgen(current : str, only_dirs : bool)-> list:
         sub = len(home)
         current = home + current[1:]
     try:
-        current_cleaned = current.replace("\ ", " ")
+        current_cleaned = current.replace(r"\ ", " ")
         result = check_output(f"compgen {opt} -- \"{current_cleaned}\"", shell=True, executable='/bin/bash').decode().split('\n')
         if sub > 0:
             result = ["~" + e[sub:].replace(" ", r"\ ") + "/" if Path(e).is_dir() else "~" + e[sub:].replace(" ", r"\ ") + " " for e in result if e != ""]

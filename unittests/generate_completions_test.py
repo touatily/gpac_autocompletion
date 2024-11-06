@@ -108,7 +108,7 @@ list_tests = [
 
     ###### tests about props
     # Test 1:
-    ("gpac -h props Da", ['DataRef ', 'DashMode ', 'DashDur ']),
+    ("gpac -h props DashMu", ['DashMultiPid ', 'DashMultiPidIdx ', 'DashMultiTrack ']),
     # Test 2:
     ("gpac -h props Au", ['AudioFormat ', 'AudioPlaybackSpeed ', 'AudioVolume ', 'AudioPan ',
                           'AudioPriority ']),
@@ -119,7 +119,7 @@ list_tests = [
     # Test 5:
     ("gpac inspect:#Al", ['#Alpha', '#AltGroup']),
     # Test 6:
-    ("gpac routein:#Frag", ['#FragStart', '#FragRange', '#FragTFDT', '#FragURL']),
+    ("gpac routein:#Frag", ['#FragDur', '#FragStart', '#FragRange', '#FragTFDT', '#FragURL']),
 ]
 
 class GenerateCompletionsTest(unittest.TestCase):

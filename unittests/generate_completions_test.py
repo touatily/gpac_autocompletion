@@ -114,6 +114,12 @@ list_tests = [
                           'AudioPriority ']),
     # Test 3:
     ("gpac -h props Fi", ['FileNumber ', 'FileName ', 'FileSuffix ']),
+    # Test 4:
+    ("gpac inspect:#Color", ['#ColorPrimaries', '#ColorTransfer', '#ColorMatrix']),
+    # Test 5:
+    ("gpac inspect:#Al", ['#Alpha', '#AltGroup']),
+    # Test 6:
+    ("gpac routein:#Frag", ['#FragStart', '#FragRange', '#FragTFDT', '#FragURL']),
 ]
 
 class GenerateCompletionsTest(unittest.TestCase):

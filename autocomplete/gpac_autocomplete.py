@@ -118,6 +118,7 @@ def analyze_filter(filter, current_word, help_mode=False):
         args = current_word.split(":")
 
         opt = [*args]
+        used_props = set()
         for i in range(len(opt)):
             temp = opt[i].split("=")[0]
             if temp in list_args:
@@ -125,6 +126,8 @@ def analyze_filter(filter, current_word, help_mode=False):
             elif opt[i] in list_enum_values:
                 # get arg name
                 opt[i] = list_enum_values[opt[i]]
+            elif len(temp) > 0 and temp[0] == "#":
+                used_props.add(temp[1:])
 
 
         if args[0] != filter:
@@ -136,6 +139,10 @@ def analyze_filter(filter, current_word, help_mode=False):
                 completions = [current_word + " "]
                 if len(list_args) > 0:
                     completions += [current_word + ":"]
+            elif len(args[-1])>0 and args[-1][0] == "#":
+                props = [e for e in get_list_props() if e not in used_props]
+                prop_name = args[-1][1:]
+                completions = ["#"+e for e in props if e.startswith(prop_name)]
             elif args[-1] in list_enum_values:
                 completions = [args[-1] + " ", args[-1] + ":"]
             elif opt[-1] in possiblities:

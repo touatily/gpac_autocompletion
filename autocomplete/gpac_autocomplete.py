@@ -21,10 +21,16 @@ cache = cm.Cache(CACHE_PATH)
 
 # get all possible args for a filter
 def get_list_args(gfilter: str) -> dict:
+    """
+    Retrieve a list of arguments from the cache based on the given filter.
+    """
     return cache.get_cache_list_args(gfilter)
 
 # get type and possible values for an arg of a filter
-def get_type_arg_filter(gfilter: str, arg: str) -> str:
+def get_type_arg_filter(gfilter: str, arg: str) -> tuple:
+    """
+    Retrieve the type and possible values of an argument from the cache.
+    """
     return cache.get_cache_type_arg_filter(gfilter, arg)
 
 # lazy loading of filters
@@ -36,26 +42,45 @@ def get_list_filters() -> list:
 
 # lazy loading of modules
 def get_list_modules() -> list:
+    """
+    Returns the list of modules. If the list is empty, it fetches the list from the cache.
+
+    Returns:
+        list: A list of modules.
+    """
     global list_modules
     if list_modules == []:
         list_modules = cache.get_cache_list_modules()
     return list_modules
 
 # lazy loading of protocols
-def get_list_protocols()-> None:
+def get_list_protocols() -> None:
     global protocols
     if protocols == {}:
         protocols = cache.get_cache_list_protocols()
 
 # lazy loading of props
-def get_list_props()-> list:
+def get_list_props() -> list:
     global list_props
     if list_props == []:
         list_props = cache.get_cache_list_props()
     return list_props
 
 # get autocompletion list from compgen built-in bash command
-def get_list_compgen(current : str, only_dirs : bool)-> list:
+def get_list_compgen(current : str, only_dirs : bool) -> list:
+    """
+    Generates a list of possible completions for a given path prefix using the `compgen` command.
+
+    Args:
+        current (str): The current path prefix to complete. 
+            If it starts with '~', it will be expanded to the user's home directory.
+        only_dirs (bool): If True, only directories will be considered for completion. 
+            If False, both files and directories will be considered.
+
+    Returns:
+        list: A list of possible completions for the given path prefix. 
+            Each completion will have spaces escaped and directories will end with a '/'.
+    """
     if current is None:
         return []
 
@@ -67,7 +92,8 @@ def get_list_compgen(current : str, only_dirs : bool)-> list:
         current = home + current[1:]
     try:
         current_cleaned = current.replace(r"\ ", " ")
-        result = check_output(f"compgen {opt} -- \"{current_cleaned}\"", shell=True, executable='/bin/bash').decode().split('\n')
+        compgen_cmd = f"compgen {opt} -- \"{current_cleaned}\""
+        result = check_output(compgen_cmd, shell=True, executable='/bin/bash').decode().split('\n')
         if sub > 0:
             result = ["~" + e[sub:].replace(" ", r"\ ") + "/" if Path(e).is_dir() else "~" + e[sub:].replace(" ", r"\ ") + " " for e in result if e != ""]
         else:
@@ -77,18 +103,18 @@ def get_list_compgen(current : str, only_dirs : bool)-> list:
         result = []
     return result
 
-def get_list_values_enum_args(filter: str) -> dict:
-    return cache.get_cache_list_values_enum_args(filter)
+def get_list_values_enum_args(gfilter: str) -> dict:
+    return cache.get_cache_list_values_enum_args(gfilter)
 
 
-def analyze_filter(filter, current_word, help=False):
+def analyze_filter(filter, current_word, help_mode=False):
     list_args = get_list_args(filter)
     list_enum_values = get_list_values_enum_args(filter)
 
     possiblities = list_args
     completions = []
 
-    if not help:
+    if not help_mode:
         args = current_word.split(":")
 
         opt = [*args]
@@ -191,10 +217,10 @@ def generate_completions(command_line, cursor_position):
         command_line_words.append("")
 
     ## check wether help is being requested
-    help = False
+    help_mode = False
     for i in range(len(command_line_words)-1):
         if command_line_words[i] in list_help:
-            help = True
+            help_mode = True
             break
 
     completions = []
@@ -208,16 +234,16 @@ def generate_completions(command_line, cursor_position):
         if len(command_line_words) > 1:
             previous_word = command_line_words[-2]
 
-    if help:
+    if help_mode:
         if previous_word == "module" or previous_word == "modules":
             completions = [e+" " for e in get_list_modules()+[""] if e.startswith(current_word)]
         elif previous_word == "links":
             completions = [e+" " for e in get_list_filters()+[""] if e.startswith(current_word)]
-        elif previous_word == "props": 
+        elif previous_word == "props":
             completions = [e+" " for e in get_list_props()+[""] if e.startswith(current_word)]
         else:
             if current_word.split('.')[0] in get_list_filters():
-                completions = analyze_filter(current_word.split('.')[0], current_word, help)
+                completions = analyze_filter(current_word.split('.')[0], current_word, help_mode)
             if len(completions) == 0:
                 completions = [e+" " for e in help_options if e.startswith(current_word)] + \
                                 [e for e in get_list_filters() if e.startswith(current_word)]
@@ -227,7 +253,7 @@ def generate_completions(command_line, cursor_position):
             get_list_protocols()
             input_protocols = [p for p in protocols if protocols[p]["input"] != []]
             output_protocols = [p for p in protocols if protocols[p]["output"] != []]
-            
+
             list_cur = current_word.split(":")
             curr_option = list_cur[-1]
             protocol = list_cur[0]
@@ -247,7 +273,7 @@ def generate_completions(command_line, cursor_position):
                 completions = [e for e in possibilities if e.startswith(current_word[4:])] + + get_list_compgen(current_word.split("=")[1], True)
 
 
-        elif current_word == "":  
+        elif current_word == "":
             completions = ["-h", "-help", "-netcap=", "-graph", "-stats", "-src", "-i", "-logs", "-dst", "-o"] + get_list_filters()
         elif current_word == "-":
             completions = ["-h", "-help", "-netcap=", "-graph", "-stats", "-src", "-i", "-logs", "-dst", "-o"]
@@ -255,9 +281,9 @@ def generate_completions(command_line, cursor_position):
             completions = [e for e in ["-h", "-hx", "-help", "-netcap=", "-graph", "-stats", "-src", "-i", "-logs", "-dst", "-o"] if e.startswith(current_word)]
         else:
 
-            for filter in get_list_filters():
-                if current_word.split(':')[0] == filter:
-                    completions = analyze_filter(filter, current_word, help)
+            for gfilter in get_list_filters():
+                if current_word.split(':')[0] == gfilter:
+                    completions = analyze_filter(gfilter, current_word, help_mode)
                     break
             if len(completions) == 0:
                 possibilities = get_list_filters()

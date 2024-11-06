@@ -37,6 +37,43 @@ Alternatively, to install it system-wide for all users, use:
 sudo ./install.sh
 ```
 
+3. After installation, apply the changes by running:
+```sh
+source ~/.bashrc
+```
+Alternatively, you can open a new terminal to apply the changes.
+
+## Updating
+
+To update the autocompletion script to the latest version, follow these steps:
+
+1. Navigate to the project directory:
+```sh
+cd /path/to/gpac_autocompletion
+```
+
+2. Pull the latest changes from the repository:
+```sh
+git pull
+```
+
+3. Reinstall the script:
+```sh
+./install.sh
+```
+
+If you installed it system-wide, use:
+```sh
+sudo ./install.sh
+```
+
+4. Apply the changes by running:
+```sh
+source ~/.bashrc
+```
+Alternatively, you can open a new terminal to apply the changes.
+
+
 ## Running Tests
 To run the unit tests, use the following command:
 
